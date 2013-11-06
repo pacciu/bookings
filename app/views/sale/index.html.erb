@@ -1,0 +1,140 @@
+<table>
+            <thead>
+                <tr>
+                    <th>Aula/Giorno</th>
+                    <th>Lu <span class="days" id="day_mo"></span></th>
+                    <th>Ma <span class="days" id="day_tu"></span></th>
+                    <th>Me <span class="days" id="day_we"></span></th>
+                    <th>Gi <span class="days" id="day_th"></span></th>
+                    <th>Ve <span class="days" id="day_fr"></span></th>
+                    <th>Sa <span class="days" id="day_sa"></span></th>
+                </tr>
+            </thead>
+            <tbody>
+            	<% @rooms.each do |room| %>
+                <tr id="sala_<%= room.id %>">
+                    <td><%= room.description %></td>
+                    <td class="grid-elem" id="<%= room.id %>_mo" style="background-color:<%=room.color%>">&nbsp;</td>
+                    <td class="grid-elem" id="<%= room.id %>_tu" style="background-color:<%=room.color%>">&nbsp;</td>
+                    <td class="grid-elem" id="<%= room.id %>_we" style="background-color:<%=room.color%>">&nbsp;</td>
+                    <td class="grid-elem" id="<%= room.id %>_th" style="background-color:<%=room.color%>">&nbsp;</td>
+                    <td class="grid-elem" id="<%= room.id %>_fr" style="background-color:<%=room.color%>">&nbsp;</td>
+                    <td class="grid-elem" id="<%= room.id %>_sa" style="background-color:<%=room.color%>">&nbsp;</td>
+                </tr>
+                <% end %>
+            </tbody>
+        </table>
+        <div id="search">
+        	<p>Pick a date of a week:</p>
+        	<input type="text" id="dateOfweek" name="dateOfweek"/>
+        </div>
+        <div id="bookingCU" title="Nuova prenotazione">
+            <p id="aulaName">&nbsp;</p>
+            <p id="dayName">&nbsp;</p>
+            <p class="timeRow">
+                <label for="from_h">Da:</label><input type="text" maxlength="2" name="from_h" id="from_h" class="time"/>:<input type="text" maxlength="2" name="from_m" id="from_m" class="time"/>
+            </p>
+            <p class="timeRow">
+                <label for="to_h">A:</label><input type="text"  maxlength="2" id="to_h" name="to_h" class="time"/>:<input type="text"  maxlength="2" id="to_m" name="to_m" class="time"/>
+            </p>
+            <p id="customerName"><input type="text" id="customerForBooking" name="customerForBooking" /></p>
+            <input type="hidden" id="bookingId" value=""/>
+            <input type="hidden" id="customerId" value=""/>
+            <input type="hidden" id="roomId" value=""/>
+            <input type="hidden" id="day" value=""/>
+        </div>
+	<script type="text/javascript">
+            $(function() {
+            	$("#dateOfweek").val("");
+            	$("#dateOfweek").datepicker({ 
+            		dateFormat: "dd-mm-yy",
+            		onSelect: function(dateTxt){
+            			getBookingsForDate(dateTxt);
+            		}
+            	});
+            	$("#customerForBooking").autocomplete({ 
+            		source:"/customers/find.json",
+            		minLength: 2,
+            		select: function(event, ui){
+            			$("#customerId").val(ui.item.id);
+            		} 
+            	});
+                $("#bookingCU").dialog(
+                        {
+                            resizable: false,
+                            autoOpen: false,
+                            height: 300,
+                            width: 375,
+                            buttons:[
+                            	{ 
+                            		text: "Salva",
+                            		click: function() {
+                            			var bookingId=$("#bookingId").val();
+                            			booking={
+                            				id:bookingId,
+                            				at:toISOTimestamp($("#from_h").val(),$("#from_m").val(),$("#dayName").text()),
+                            				finish:toISOTimestamp($("#to_h").val(),$("#to_m").val(),$("#dayName").text()),
+                            				room_id:$("#roomId").val(),
+                            				customer_id:$("#customerId").val(),
+                            				day:$("#day").val()
+                            			};
+                            			var createUpdate=bookingId=="";
+                            			var ajaxType=createUpdate?"POST":"PUT";
+                            			var ajaxUrl="/bookings"+(createUpdate?"":("/"+bookingId))+".json";
+                            			$.ajax({
+	                            				cache:false,
+	                            				type:ajaxType,
+	                            				dataType: 'json',
+	                            				url:ajaxUrl,
+	                            				data:{booking:booking,id:bookingId},
+	                            				success:function(){
+	                            					getBookingsForDate($("#dayName").text());
+	                            					$( "#bookingCU" ).dialog( "close" ); 
+	                            				}
+	                            			}
+                            			);
+                            			
+                            		} 
+                            },
+                            { 
+                            		text: "Cancella",
+                            		click: function() {
+                            			var bookingId=$("#bookingId").val();
+                            			if(bookingId!=""){
+	                            			$.ajax({
+		                            				cache:false,
+		                            				type:'DELETE',
+		                            				dataType: 'json',
+		                            				url:"/bookings/"+bookingId+".json",
+		                            				data:{id:bookingId},
+		                            				success:function(){
+		                            					getBookingsForDate($("#dayName").text());
+		                            					$( "#bookingCU" ).dialog( "close" ); 
+		                            				}
+		                            			}
+	                            			);
+                            			}
+                            		}
+                            	}
+                            ]
+                        });
+                $(".grid-elem").click(function(event) {
+                	var row=$(event.target);
+                	var rowAttrId=row.attr("id");
+                	console.log("eventTarget id:"+rowAttrId);
+                	var actualBooking=$("#"+rowAttrId).data("booking");
+                	if(actualBooking==null){
+                	var roomDay=row.attr("id").split("_");
+	                	createOrUpdateBooking(row.parent().children()[0].innerHTML,roomDay[0],roomDay[1],$("#day_"+roomDay[1]).text());
+                	}
+                	else {
+						console.log("actualBooking "+actualBooking.customer.nick);
+						var fromHM=getHoursMinutes(actualBooking.at).split(":");
+						var toHM=getHoursMinutes(actualBooking.finish).split(":");
+						createOrUpdateBooking(actualBooking.room.description,actualBooking.room.id,actualBooking.day,
+							$("#day_"+actualBooking.day).text(),actualBooking.id,actualBooking.customer.id,actualBooking.customer.nick,fromHM[0],fromHM[1],toHM[0],toHM[1]);
+					}
+                });
+             	getBookingsForDate();
+            });
+        </script>

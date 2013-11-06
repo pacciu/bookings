@@ -1,0 +1,56 @@
+.grid-elem {
+    width: 180px;
+    height: 150px;
+}
+thead th {
+    background: #a7c8da;
+    color: white;
+    text-shadow: 0px 0px 5px rgba(0,0,0,0.9);
+    border-collapse: collapse;
+    margin:0px;
+    box-shadow: inset 0px 0px -10 pxrgba(0,0,0, 0.5);
+}
+thead tr {
+    padding: 0px;
+    border-collapse: collapse;
+}
+tbody td {
+    border: dotted 1px #333;
+}
+td input {
+    width: 100%;
+    margin: 0px;
+    border: none;
+}
+#search {
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	width: 120px;
+	background-color: #A7C8DA;
+	border: 1px solid black;
+}
+.salaElem{
+	color: black;
+	cursor: pointer;
+}
+.plus{
+	color: white;
+	cursor: pointer;
+	width:10px;
+	background: none repeat scroll 0 0 #A7C8DA;
+	margin-bottom: 130px;
+    margin-left: 170px;
+    font-size: 12pt;
+}
+.time{
+	width: 30px;
+}
+.timeRow{
+	text-align: center;
+}
+.ui-autocomplete { 
+	position: absolute; 
+	cursor: default;
+	z-index:3000 !important;
+	}  
