@@ -1,6 +1,7 @@
 class SaleController < ApplicationController
   def index
     @rooms = Room.all
+    @customer = Customer.new
   end
   def getBookings
     dateParam=getDateOfWeek

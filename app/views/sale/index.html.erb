@@ -37,14 +37,48 @@
             <p class="timeRow">
                 <label for="to_h">A:</label><input type="text"  maxlength="2" id="to_h" name="to_h" class="time"/>:<input type="text"  maxlength="2" id="to_m" name="to_m" class="time"/>
             </p>
-            <p id="customerName"><input type="text" id="customerForBooking" name="customerForBooking" /></p>
+            <p id="customerNameAutocomplete"><input type="text" id="customerForBooking" name="customerForBooking" /></p>
             <input type="hidden" id="bookingId" value=""/>
             <input type="hidden" id="customerId" value=""/>
             <input type="hidden" id="roomId" value=""/>
             <input type="hidden" id="day" value=""/>
+              <div id="newCustomer">
+                <p><label for="customerNick">Nick:</label><input type="text" name="customerNick" id="customerNick"/></p>
+                <p><label for="customerName">Nome:</label><input type="text" name="customerName" id="customerName"/></p>
+                <p><label for="customerCognome">Cognome:</label><input type="text" name="customerCognome" id="customerCognome"/></p>
+                <p><label for="customerTelefono">Telefono:</label><input type="text" name="customerTelefono" id="customerTelefono"/></p>
+                <p><label for="customerEmail">Email:</label><input type="text" name="customerEmail" id="customerEmail"/></p>
+                <div id="saveCustomer">Salva</div>
+              </div>
         </div>
 	<script type="text/javascript">
             $(function() {
+                $("#newCustomer").hide();
+                $("#saveCustomer").button().
+                    click(function(){
+                        customer={
+                            id:null,
+                            nick:$("#customerNick").val(),
+                            nome:$("#customerName").val(),
+                            cognome:$("#customerCognome").val(),
+                            telefono:$("#customerTelefono").val(),
+                            email:$("#customerEmail").val()
+                        };
+                        $.ajax({
+                                    cache:false,
+                                    type:"POST",
+                                    dataType: 'json',
+                                    url:"/customers.json",
+                                    data:{customer:customer,id:""},
+                                    success:function(ris){
+                                        $("#customerId").val(ris.id);
+                                        $("#customerForBooking").val(ris.nick);
+                                        $("#newCustomer").hide();
+                                    }
+                                }
+                        );
+                    }
+                );
             	$("#dateOfweek").val("");
             	$("#dateOfweek").datepicker({ 
             		dateFormat: "dd-mm-yy",
@@ -63,7 +97,7 @@
                         {
                             resizable: false,
                             autoOpen: false,
-                            height: 300,
+                            height: 600,
                             width: 375,
                             buttons:[
                             	{ 
@@ -114,6 +148,12 @@
 		                            			}
 	                            			);
                             			}
+                            		}
+                            	},
+                            	{ 
+                            		text: "Nuovo cliente",
+                            		click: function() {
+                                        $("#newCustomer").show();
                             		}
                             	}
                             ]
