@@ -229,6 +229,7 @@ Devise.setup do |config|
   #   manager.intercept_401 = false
   #   manager.default_strategies(:scope => :user).unshift :some_external_strategy
   # end
+  config.secret_key = 'cb34b1dcf97bb5ddb9b011ec1513678a77cdafa056478aafba9cd96195c3e1468d178ed7a338767894a242a99b9e9c1e784ddb100c0fc5d17e9250ef8fd2aeac'
 
   # ==> Mountable engine configurations
   # When using Devise inside an engine, let's call it `MyEngine`, and this engine
