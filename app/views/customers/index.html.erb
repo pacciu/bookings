@@ -2,6 +2,7 @@
 
 <table>
   <tr>
+  	<th>Nick</th>
     <th>Nome</th>
     <th>Cognome</th>
     <th>Telefono</th>
@@ -13,6 +14,7 @@
 
 <% @customers.each do |customer| %>
   <tr>
+  	<td><%= customer.nick %></td>
     <td><%= customer.nome %></td>
     <td><%= customer.cognome %></td>
     <td><%= customer.telefono %></td>
