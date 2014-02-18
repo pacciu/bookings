@@ -8,7 +8,7 @@ function openDialogBox(element) {
 }
 function getHoursMinutes(dateTime){
 	var dat=new Date(Date.parse(dateTime));
-	return paddy(dat.getHours(),2)+":"+paddy(dat.getMinutes());
+	return paddy(dat.getHours())+":"+paddy(dat.getMinutes());
 }
 function getBookingsForDate(dateTxt){
 	var dateParam=dateTxt==null?{}:{dateOfWeek:dateTxt};
